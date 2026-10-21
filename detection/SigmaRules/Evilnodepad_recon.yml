@@ -1,0 +1,37 @@
+title: Post-exploitation recon with elevated privileges
+id: 2d7f4e8b-1a3c-4b9d-c6e0-5f2a8b1d3e7c
+status: experimental
+description: >
+  Detects execution of common discovery tools (whoami, ipconfig, net, systeminfo)
+  with IntegrityLevel High from a non-system parent process — characteristic of
+  post-exploitation recon after a UAC bypass.
+author: Mohamed Amine NAMOUCHI
+date: 2024/10/01
+references:
+  - https://attack.mitre.org/techniques/T1033/
+  - https://attack.mitre.org/techniques/T1087/
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    EventID: 1
+    Image|endswith:
+      - '\whoami.exe'
+      - '\ipconfig.exe'
+      - '\net.exe'
+      - '\net1.exe'
+      - '\systeminfo.exe'
+    IntegrityLevel: 'High'
+  filter:
+    ParentImage|startswith:
+      - 'C:\Windows\System32\'
+      - 'C:\Windows\SysWOW64\'
+  condition: selection and not filter
+falsepositives:
+  - Administrators running manual diagnostics
+level: high
+tags:
+  - attack.discovery
+  - attack.t1033
+  - attack.t1087

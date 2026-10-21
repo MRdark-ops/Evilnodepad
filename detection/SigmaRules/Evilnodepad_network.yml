@@ -1,0 +1,29 @@
+title: Outbound network connection initiated by a text editor
+id: 9c2e1b4a-7f3d-4a8b-b5c6-0d2f8e1a3c7b
+status: experimental
+description: >
+  Detects an outbound TCP connection initiated by notepad.exe —
+  abnormal behavior indicating shellcode injection and active C2 communication.
+author: Mohamed Amine NAMOUCHI
+date: 2024/10/01
+references:
+  - https://attack.mitre.org/techniques/T1071/
+logsource:
+  category: network_connection
+  product: windows
+detection:
+  selection:
+    EventID: 3
+    Image|endswith: '\notepad.exe'
+    Initiated: 'true'
+  filter:
+    DestinationIp|startswith:
+      - '127.'
+      - '::1'
+  condition: selection and not filter
+falsepositives:
+  - None known
+level: critical
+tags:
+  - attack.command_and_control
+  - attack.t1071

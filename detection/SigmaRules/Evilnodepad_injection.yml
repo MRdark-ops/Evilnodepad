@@ -1,0 +1,31 @@
+title: Memory injection via CreateRemoteThread into a legitimate process
+id: f3a8d2c1-4b7e-4f9a-8c3d-1e5b2a6f0d9c
+status: experimental
+description: >
+  Detects the creation of a remote thread in a legitimate system process
+  (notepad.exe, explorer.exe) from an unsigned binary — typical of shellcode injection.
+author: Mohamed Amine NAMOUCHI
+date: 2024/10/01
+references:
+  - https://attack.mitre.org/techniques/T1055/003/
+logsource:
+  category: create_remote_thread
+  product: windows
+detection:
+  selection:
+    EventID: 8
+    TargetImage|endswith:
+      - '\notepad.exe'
+      - '\explorer.exe'
+      - '\svchost.exe'
+  filter:
+    SourceImage|startswith:
+      - 'C:\Windows\System32\'
+      - 'C:\Windows\SysWOW64\'
+  condition: selection and not filter
+falsepositives:
+  - Legitimate debugging tools
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1055.003

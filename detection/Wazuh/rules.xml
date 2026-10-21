@@ -1,0 +1,60 @@
+<!-- =========================================================
+     GhostLoad — Wazuh Detection Rules
+     Author  : Mohamed Amine NAMOUCHI
+     Date    : 2024-10-01
+     MITRE   : T1055.003 | T1071 | T1033
+     ========================================================= -->
+
+<group name="ghostload,sysmon,windows,">
+
+  <!-- ───────────────────────────────────────────────────────
+       Rule 1 — CreateRemoteThread into a legitimate process
+       Sysmon Event ID 8 | MITRE T1055.003
+       Level 12 = High
+  ─────────────────────────────────────────────────────────── -->
+  <rule id="100001" level="12">
+    <if_group>sysmon</if_group>
+    <field name="win.system.eventID">8</field>
+    <field name="win.eventdata.targetImage" type="pcre2">(?i)(notepad|explorer|svchost)\.exe$</field>
+    <description>GhostLoad - Memory injection via CreateRemoteThread into a legitimate process (T1055.003)</description>
+    <mitre>
+      <id>T1055.003</id>
+    </mitre>
+    <group>injection,defense_evasion,</group>
+  </rule>
+
+  <!-- ───────────────────────────────────────────────────────
+       Rule 2 — Outbound C2 connection from notepad.exe
+       Sysmon Event ID 3 | MITRE T1071
+       Level 15 = Critical
+  ─────────────────────────────────────────────────────────── -->
+  <rule id="100002" level="15">
+    <if_group>sysmon</if_group>
+    <field name="win.system.eventID">3</field>
+    <field name="win.eventdata.image" type="pcre2">(?i)notepad\.exe$</field>
+    <field name="win.eventdata.initiated">true</field>
+    <description>GhostLoad - C2 communication initiated by notepad.exe (T1071)</description>
+    <mitre>
+      <id>T1071</id>
+    </mitre>
+    <group>command_and_control,</group>
+  </rule>
+
+  <!-- ───────────────────────────────────────────────────────
+       Rule 3 — Post-exploitation recon with High integrity
+       Sysmon Event ID 1 | MITRE T1033
+       Level 12 = High
+  ─────────────────────────────────────────────────────────── -->
+  <rule id="100003" level="12">
+    <if_group>sysmon</if_group>
+    <field name="win.system.eventID">1</field>
+    <field name="win.eventdata.image" type="pcre2">(?i)(whoami|ipconfig|net|net1|systeminfo)\.exe$</field>
+    <field name="win.eventdata.integrityLevel">High</field>
+    <description>GhostLoad - Post-exploitation recon with elevated privileges (T1033)</description>
+    <mitre>
+      <id>T1033</id>
+    </mitre>
+    <group>discovery,post_exploitation,</group>
+  </rule>
+
+</group>
